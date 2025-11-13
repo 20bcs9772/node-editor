@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { DraggableNode } from "../draggableNode";
 import {
@@ -92,12 +90,6 @@ export const Sidebar = ({ isOpen }) => {
       </div>
 
       <SubmitButton />
-
-      <div className="sidebar-footer">
-        <div className="footer-text">
-          <p>Drag nodes to the canvas</p>
-        </div>
-      </div>
     </aside>
   );
 };
