@@ -2,6 +2,9 @@
 
 A modern, interactive node-based visual programming interface for building AI/ML pipelines with dynamic features and backend validation.
 
+![Head](./public/head.png)
+
+
 ## Features
 
 ### Frontend (React + React Flow)
@@ -45,6 +48,9 @@ fields: [{
 }]
 ```
 
+![DV](./public/dv.png)
+
+
 ### Dynamic Sizing
 
 ```javascript
@@ -54,6 +60,9 @@ fields: [{
   enableDynamicSize: true,    // Enable at field level
 }]
 ```
+
+![DS](./public/ds.png)
+
 
 ### Adding Features to Other Nodes
 
