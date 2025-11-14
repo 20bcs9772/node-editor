@@ -51,10 +51,6 @@ export const Sidebar = ({ isOpen }) => {
 
   return (
     <aside className={`sidebar ${isOpen ? "open" : "closed"}`}>
-      <div className="sidebar-header">
-        <h2>Nodes Library</h2>
-      </div>
-
       <div className="sidebar-content">
         {Object.entries(nodeCategories).map(([key, category]) => (
           <div key={key} className="category">

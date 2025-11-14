@@ -1,5 +1,3 @@
-"use client"
-
 export const DraggableNode = ({ type, label, color = "#00d9ff" }) => {
   const onDragStart = (event, nodeType) => {
     const appData = { nodeType }

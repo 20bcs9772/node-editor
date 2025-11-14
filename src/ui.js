@@ -1,28 +1,23 @@
-"use client"
+import { useState, useRef, useCallback, useEffect } from "react";
+import ReactFlow, { Controls, Background, MiniMap } from "reactflow";
+import { useStore } from "./store";
+import { shallow } from "zustand/shallow";
+import { InputNode } from "./nodes/inputNode";
+import { LLMNode } from "./nodes/llmNode";
+import { OutputNode } from "./nodes/outputNode";
+import { TextNode } from "./nodes/textNode";
 
-// ui.js
-// Displays the drag-and-drop UI
-// --------------------------------------------------
+import "reactflow/dist/style.css";
+import { AggregatorNode } from "./nodes/aggregatorNode";
+import { ConditionalNode } from "./nodes/conditionalNode";
+import { DelayNode } from "./nodes/delayNode";
+import { TransformNode } from "./nodes/transformNode";
+import { ValidatorNode } from "./nodes/validatorNode";
+import { wakeUp } from "./services/wakeUp";
+import "./ui.css";
 
-import { useState, useRef, useCallback } from "react"
-import ReactFlow, { Controls, Background, MiniMap } from "reactflow"
-import { useStore } from "./store"
-import { shallow } from "zustand/shallow"
-import { InputNode } from "./nodes/inputNode"
-import { LLMNode } from "./nodes/llmNode"
-import { OutputNode } from "./nodes/outputNode"
-import { TextNode } from "./nodes/textNode"
-
-import "reactflow/dist/style.css"
-import { AggregatorNode } from "./nodes/aggregatorNode"
-import { ConditionalNode } from "./nodes/conditionalNode"
-import { DelayNode } from "./nodes/delayNode"
-import { TransformNode } from "./nodes/transformNode"
-import { ValidatorNode } from "./nodes/validatorNode"
-import "./ui.css"
-
-const gridSize = 20
-const proOptions = { hideAttribution: true }
+const gridSize = 20;
+const proOptions = { hideAttribution: true };
 const nodeTypes = {
   customInput: InputNode,
   llm: LLMNode,
@@ -33,7 +28,7 @@ const nodeTypes = {
   delay: DelayNode,
   transform: TransformNode,
   validator: ValidatorNode,
-}
+};
 
 const selector = (state) => ({
   nodes: state.nodes,
@@ -43,55 +38,77 @@ const selector = (state) => ({
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
-})
+});
 
 export const PipelineUI = () => {
-  const reactFlowWrapper = useRef(null)
-  const [reactFlowInstance, setReactFlowInstance] = useState(null)
-  const { nodes, edges, getNodeID, addNode, onNodesChange, onEdgesChange, onConnect } = useStore(selector, shallow)
+  const reactFlowWrapper = useRef(null);
+  const didRun = useRef(false);
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+  const {
+    nodes,
+    edges,
+    getNodeID,
+    addNode,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+  } = useStore(selector, shallow);
 
   const getInitNodeData = (nodeID, type) => {
-    const nodeData = { id: nodeID, nodeType: `${type}` }
-    return nodeData
-  }
+    const nodeData = { id: nodeID, nodeType: `${type}` };
+    return nodeData;
+  };
+
+  useEffect(() => {
+    if (didRun.current) return;
+    didRun.current = true;
+
+    const wakeUpServer = async () => {
+      await wakeUp();
+    };
+
+    wakeUpServer();
+  }, []);
 
   const onDrop = useCallback(
     (event) => {
-      event.preventDefault()
+      event.preventDefault();
 
-      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect()
+      const reactFlowBounds = reactFlowWrapper.current.getBoundingClientRect();
       if (event?.dataTransfer?.getData("application/reactflow")) {
-        const appData = JSON.parse(event.dataTransfer.getData("application/reactflow"))
-        const type = appData?.nodeType
+        const appData = JSON.parse(
+          event.dataTransfer.getData("application/reactflow")
+        );
+        const type = appData?.nodeType;
 
         if (typeof type === "undefined" || !type) {
-          return
+          return;
         }
 
         const position = reactFlowInstance.project({
           x: event.clientX - reactFlowBounds.left,
           y: event.clientY - reactFlowBounds.top,
-        })
+        });
 
-        const nodeID = getNodeID(type)
+        const nodeID = getNodeID(type);
 
         const newNode = {
           id: nodeID,
           type,
           position,
           data: getInitNodeData(nodeID, type),
-        }
+        };
 
-        addNode(newNode)
+        addNode(newNode);
       }
     },
-    [reactFlowInstance, getNodeID, addNode],
-  )
+    [reactFlowInstance, getNodeID, addNode]
+  );
 
   const onDragOver = useCallback((event) => {
-    event.preventDefault()
-    event.dataTransfer.dropEffect = "move"
-  }, [])
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }, []);
 
   return (
     <div className="pipeline-ui-wrapper">
@@ -116,5 +133,5 @@ export const PipelineUI = () => {
         </ReactFlow>
       </div>
     </div>
-  )
-}
+  );
+};

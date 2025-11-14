@@ -1,4 +1,3 @@
-"use client"
 import { useTheme } from "../themeContext"
 import { Moon, Sun, Menu } from "lucide-react"
 import "./Header.css"
@@ -14,8 +13,7 @@ export const Header = ({ sidebarOpen, setSidebarOpen }) => {
         </button>
         <div className="logo-section">
           <div>
-            <h1 className="app-title">Pipeline Studio</h1>
-            <p className="app-subtitle">Visual Node Editor</p>
+            <h1 className="app-title">Node Editor</h1>
           </div>
         </div>
       </div>

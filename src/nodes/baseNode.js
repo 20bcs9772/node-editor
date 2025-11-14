@@ -170,17 +170,31 @@ const BaseNode = ({ id, data, config }) => {
               {field.type === "textarea" && (
                 <textarea
                   value={fieldValues[field.name]}
-                  onChange={(e) =>
-                    handleFieldChange(field.name, e.target.value)
-                  }
+                  onChange={(e) => {
+                    handleFieldChange(field.name, e.target.value);
+                    if (field.enableDynamicSize) {
+                      e.target.style.height = "auto";
+                      e.target.style.height = `${e.target.scrollHeight}px`;
+                    }
+                  }}
                   placeholder={field.placeholder}
-                  rows={field.rows || 2}
+                  rows={field.enableDynamicSize ? 1 : field.rows || 2}
                   className="field-textarea"
                   style={
                     field.enableDynamicSize
-                      ? { minHeight: "60px", resize: "vertical" }
+                      ? {
+                          minHeight: "60px",
+                          resize: "vertical",
+                          overflow: "hidden",
+                        }
                       : undefined
                   }
+                  ref={(el) => {
+                    if (el && field.enableDynamicSize) {
+                      el.style.height = "auto";
+                      el.style.height = `${el.scrollHeight}px`;
+                    }
+                  }}
                 />
               )}
               {field.type === "select" && (

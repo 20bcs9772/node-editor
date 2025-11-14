@@ -1,5 +1,3 @@
-"use client";
-
 import { useState } from "react";
 import { PipelineUI } from "./ui";
 import { ThemeProvider } from "./themeContext";

@@ -1,70 +1,196 @@
-# Getting Started with Create React App
+# Node-Based Pipeline Editor
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, interactive node-based visual programming interface for building AI/ML pipelines with dynamic features and backend validation.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+### Frontend (React + React Flow)
 
-### `npm start`
+- **Dynamic Node System**: Reusable BaseNode component with configurable properties
+- **Variable Detection**: Automatically detects `{{variable}}` patterns in text fields
+- **Dynamic Input Handles**: Creates labeled input handles for each detected variable
+- **Auto-Resizing Nodes**: Nodes grow/shrink based on content length
+- **Multiple Node Types**: Input, Output, Text, LLM, Conditional, and Delay nodes
+- **Visual Flow Editor**: Drag-and-drop interface with animated connections
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Frontend Setup
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+#### Installation
 
-### `npm test`
+```bash
+# Install dependencies
+npm install
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+#### Running the Application
 
-### `npm run build`
+```bash
+npm start
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Frontend will be available at `http://localhost:3000`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Core Features Implementation
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Dynamic Variable Detection
 
-### `npm run eject`
+```javascript
+// Text input: "Hello {{name}}, you have {{count}} messages"
+// Automatically creates 2 input handles: "name" and "count"
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+// In textNode.js
+enableVariables: true,        // Enable at node level
+fields: [{
+  enableVariables: true,      // Enable at field level
+}]
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Dynamic Sizing
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```javascript
+// Node grows/shrinks based on text length
+enableDynamicSize: true,      // Enable at node level
+fields: [{
+  enableDynamicSize: true,    // Enable at field level
+}]
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Adding Features to Other Nodes
 
-## Learn More
+```javascript
+// Example: Add variables to any node
+export const MyCustomNode = createNode({
+  label: "My Node",
+  enableVariables: true, // Enable variable detection
+  enableDynamicSize: true, // Enable auto-resizing
+  fields: [
+    {
+      name: "myField",
+      type: "textarea",
+      enableVariables: true,
+      enableDynamicSize: true,
+    },
+  ],
+});
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## API Endpoints
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Health Check
 
-### Code Splitting
+```bash
+GET /
+Response: {"Ping": "Pong"}
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Parse Pipeline
 
-### Analyzing the Bundle Size
+```bash
+POST /pipelines/parse
+Content-Type: application/x-www-form-urlencoded
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Body:
+  pipeline: JSON string containing nodes and edges
 
-### Making a Progressive Web App
+Response:
+{
+  "num_nodes": 3,
+  "num_edges": 2,
+  "is_dag": true
+}
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
 
-### Advanced Configuration
+## DAG Validation Algorithm
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The backend uses a **DFS-based cycle detection** algorithm:
 
-### Deployment
+```python
+# Three-color marking scheme:
+WHITE = 0  # Unvisited
+GRAY = 1   # Currently visiting (in DFS path)
+BLACK = 2  # Fully processed
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+# If we encounter a GRAY node during DFS:
+# → Back edge detected → Cycle exists → NOT a DAG
+```
 
-### `npm run build` fails to minify
+**Time Complexity**: O(V + E)  
+**Space Complexity**: O(V)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## Key Technical Highlights
+
+### 1. **Modular Architecture**
+
+- Reusable `BaseNode` component
+- Configuration-based node creation
+- No code duplication across node types
+
+### 2. **React Best Practices**
+
+- Proper hook usage (`useState`, `useEffect`)
+- Memoization where needed
+- Clean component lifecycle management
+
+### 3. **Efficient Algorithms**
+
+- O(V + E) DAG validation
+- Optimized regex for variable extraction
+- Dynamic rendering without unnecessary re-renders
+
+### 4. **Scalability**
+
+- Easy to add new node types
+- Features can be enabled per node/field
+- Backend can handle complex graphs
+
+## Development Tips
+
+### Adding a New Node Type
+
+```javascript
+// 1. Create new file: myNewNode.js
+import { createNode } from "./baseNode";
+import { MyIcon } from "lucide-react";
+
+export const MyNewNode = createNode({
+  label: "My Node",
+  icon: <MyIcon />,
+  color: "#your-color",
+  fields: [
+    {
+      name: "myField",
+      label: "My Field",
+      type: "text",
+      defaultValue: "",
+    },
+  ],
+  inputs: [{ id: "input" }],
+  outputs: [{ id: "output" }],
+});
+
+// 2. Register in your node types configuration
+// 3. Import and use in your flow editor
+```
+
+### Enabling Variable Support
+
+```javascript
+// Just add these flags:
+enableVariables: true,
+fields: [{
+  enableVariables: true,
+}]
+```
+
+### Enabling Dynamic Size
+
+```javascript
+// Just add these flags:
+enableDynamicSize: true,
+fields: [{
+  enableDynamicSize: true,
+}]
+```
+
