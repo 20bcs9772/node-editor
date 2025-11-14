@@ -22,8 +22,16 @@ A modern, interactive node-based visual programming interface for building AI/ML
 
 ```bash
 # Install dependencies
+git clone https://github.com/20bcs9772/node-editor.git
+cd node-editor
 npm install
 ```
+
+#### Adding environment variables
+
+- Create a `.env` file and copy the contents of `.env.example` to it.
+- Add your backend url or use `https://node-editor-backend.onrender.com`
+
 
 #### Running the Application
 
