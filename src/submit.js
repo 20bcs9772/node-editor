@@ -32,14 +32,21 @@ export const SubmitButton = () => {
   return (
     <>
       <div className="submit-container">
-        <button
-          type="submit"
-          className="submit-button"
-          disabled={isSubmitting}
-          onClick={handleSubmit}
-        >
-          <span className="submit-text">Execute Pipeline</span>
-        </button>
+       <button
+  type="submit"
+  className="submit-button"
+  disabled={isSubmitting}
+  onClick={handleSubmit}
+>
+  {isSubmitting ? (
+    <span className="loading-wrapper">
+      <div className="loader" />
+      <span>Executing...</span>
+    </span>
+  ) : (
+    <span className="submit-text">Execute Pipeline</span>
+  )}
+</button>
       </div>
 
       <PipelineAlert
